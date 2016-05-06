@@ -1,24 +1,9 @@
----
-title: 'Reproducible Research: Course Project 1'
-output: 
-  html_document: 
-    fig_height: 6
-    keep_md: yes
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+# Reproducible Research: Course Project 1
 
 
-```{r install dplyr,include=FALSE}
-if(!"dplyr" %in% installed.packages())
-            {
-              install.packages("dplyr")
-}
-library(dplyr)
 
-```
+
+
 
 
 
@@ -27,8 +12,8 @@ library(dplyr)
 Below is my code for loading the Activity Monitoring Data and then creating a table to calculate the total steps per taken per day.
 
 
-```{r Activity Monitoring Dataset}
 
+```r
 activityData<-read.csv("activity.csv",header=TRUE)
 activitySum<-tapply(activityData$steps,activityData$date,sum)
 ```
@@ -37,21 +22,35 @@ activitySum<-tapply(activityData$steps,activityData$date,sum)
 
 Here is the code to create a histogram of the total number of steps taken per day, as well as the actual histogram
 
-```{r Total Steps Histogram}
+
+```r
 hist(activitySum, main="Histogram of Total Number of Steps per Day", xlab="Total Number of Steps per Day")
 ```
+
+![](RMarkdown_files/figure-html/Total Steps Histogram-1.png)
 
 
 ## Mean and Median Number of Steps Taken per Day
 
 Here is the code to calculate the mean and median number of steps taken per day
 
-```{r Mean and Median Steps}
 
+```r
 TotalMean<-mean(activityData$steps,na.rm=TRUE)
 TotalMedian<-median(activityData$steps,na.rm=TRUE)
 TotalMean
+```
+
+```
+## [1] 37.3826
+```
+
+```r
 TotalMedian
+```
+
+```
+## [1] 0
 ```
 
 
@@ -65,15 +64,16 @@ TotalMedian
 The code below creates a time series plot of average daily activity
 
 
-```{r Avg Daily Activity Pattern}
 
+```r
 intervalMean<-tapply(activityData$steps,activityData$interval,mean,na.rm=TRUE)
 intervaldf<-add_rownames(as.data.frame(intervalMean),"VALUE")
 colnames(intervaldf)<-c("5-Minute Interval","Average Steps Taken")
 
 plot(intervaldf$`5-Minute Interval`,intervaldf$`Average Steps Taken`,type = "l",xlab="5-Minute Interval",ylab="Average Steps Taken",main="Average Daily Activity Pattern")
-
 ```
+
+![](RMarkdown_files/figure-html/Avg Daily Activity Pattern-1.png)
 
 
 
@@ -82,12 +82,16 @@ plot(intervaldf$`5-Minute Interval`,intervaldf$`Average Steps Taken`,type = "l",
 The code below determines which 5-minute interval has the maximum average number of steps
 
 
-```{r Max Avg Steps}
 
+```r
 colMax<-function(data) sapply(data, max, na.rm = TRUE)
 intervalMax<-colMax(intervaldf)
 intervalMax
+```
 
+```
+##   5-Minute Interval Average Steps Taken 
+##               "955"  "206.169811320755"
 ```
 
 
@@ -97,10 +101,13 @@ intervalMax
 The section deals with imputing missing values for the Activity Monitoring Dataset.
 
 Here is the code to calculate the number of missing (NA) values that exist in the data
-```{r Number of Missing Value}
 
+```r
 sum(is.na(activityData$steps))
+```
 
+```
+## [1] 2304
 ```
 
 
@@ -110,7 +117,8 @@ A strategy is needed for imputing the missing values in this dataset.  For simpl
 
 Here is the code for creating an updated version of the Activity Monitoring Dataset that has the missing values filled in.
 
-```{r Update Activity Monitoring Dataset}
+
+```r
 updatedDS<-activityData
 for (i in 1:length(updatedDS$steps))
     {if(is.na(updatedDS$steps[[i]]))
@@ -120,19 +128,33 @@ for (i in 1:length(updatedDS$steps))
 ```
 
 Here is a Histogram showing the total number of steps per day (with the NA values replaced)
-```{r Histogram with Imputed Values}
+
+```r
 imputedSum<-tapply(updatedDS$steps,updatedDS$date,sum)
 hist(imputedSum, main="Total Number of Steps per Day (missing values imputed)", xlab="Total Number of Steps per Day")
 ```
 
+![](RMarkdown_files/figure-html/Histogram with Imputed Values-1.png)
+
 
 Calculating mean and median total steps after the missing values are imputed
-```{r Mean and Median with Imputed Values}
+
+```r
 imputedTotalMean<-mean(updatedDS$steps)
 imputedTotalMedian<-median(updatedDS$steps)
 imputedTotalMean
-imputedTotalMedian
+```
 
+```
+## [1] 37.3826
+```
+
+```r
+imputedTotalMedian
+```
+
+```
+## [1] 0
 ```
 
 As you can see, the Mean and Median values remain the same, even after the missing values are imputed. The Mean values are the same since I used the 5-minute interval mean to impute the missing values.  The Median values are the same because there are so many zeroes in the dataset, that the middle number is still zero.
@@ -142,18 +164,11 @@ As you can see, the Mean and Median values remain the same, even after the missi
 
 Here is the code for to plot the average number of steps taken per day and compare the values between weekdays and weekends
 
-```{r install chron,include=FALSE}
-if(!"chron" %in% installed.packages())
-            {
-              install.packages("chron")
-}
-library(chron)
-
-```
 
 
-```{r Comparing Weekend and Weekday Steps}
 
+
+```r
 updatedDS$DayType <- ifelse(is.weekend(updatedDS$date),"Weekend","Weekday")
 
 ##Calclulating average number of steps for Weekends
@@ -172,6 +187,6 @@ colnames(imputedWeekdaydf)<-c("5-Minute Interval","Average Steps Taken")
 par(mfrow=c(2,1))
 plot(imputedWeekenddf$`5-Minute Interval`,imputedWeekenddf$`Average Steps Taken`,type = "l",xlab="Interval",ylab="Number of Steps",main="Weekend",ylim=c(0,250))
 plot(imputedWeekdaydf$`5-Minute Interval`,imputedWeekdaydf$`Average Steps Taken`,type = "l",xlab="Interval",ylab="Number of Steps",main="Weekday",ylim=c(0,250))
-
-
 ```
+
+![](RMarkdown_files/figure-html/Comparing Weekend and Weekday Steps-1.png)
